@@ -1,168 +1,144 @@
-import { createCanvas, GlobalFonts, loadImage } from "@napi-rs/canvas";
+import sharp from "sharp";
 import { ParsedRates } from "./types.js";
 import path from "node:path";
+import fs from "node:fs";
 
 const WIDTH = 1358;
 const HEIGHT = 1920;
 
-// Color palette - matching reference image
-const GOLD_BROWN = "#b3834d"; // Brown-gold text color (warmer, more visible)
-const BROWN = "#6D5D4F"; // Brown text color for date/disclaimer (darker)
+const GOLD_BROWN = "#b3834d";
+const BROWN = "#6D5D4F";
 
-// Register fonts once
-let fontsRegistered = false;
-function registerFonts() {
-  if (fontsRegistered) return;
-
-  const fontsDir = path.join(process.cwd(), "fonts");
-
-  // Register Merriweather (classic, readable serif)
-  GlobalFonts.registerFromPath(
-    path.join(fontsDir, "Merriweather-Regular.ttf"),
-    "Merriweather",
-  );
-  GlobalFonts.registerFromPath(
-    path.join(fontsDir, "Merriweather-Bold.ttf"),
-    "Merriweather",
-  );
-
-  fontsRegistered = true;
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-// Helper: Draw centered text
-function drawCenteredText(
-  ctx: any,
-  text: string,
-  y: number,
-  font: string,
-  color: string,
-) {
-  ctx.font = font;
-  ctx.fillStyle = color;
-  const metrics = ctx.measureText(text);
-  const x = (WIDTH - metrics.width) / 2;
-  ctx.fillText(text, x, y);
-}
+function buildSvg(rates: ParsedRates) {
+  const fontPath = path.join(
+    process.cwd(),
+    "fonts",
+    "Merriweather-Regular.ttf"
+  );
+  const fontBoldPath = path.join(
+    process.cwd(),
+    "fonts",
+    "Merriweather-Bold.ttf"
+  );
 
-// Helper: Draw aligned rate row (number right-aligned to colon, label left-aligned from colon)
-function drawRateRow(
-  ctx: any,
-  value: string,
-  label: string,
-  y: number,
-  font: string,
-  color: string,
-  colonX: number,
-) {
-  ctx.font = font;
-  ctx.fillStyle = color;
+  const fontRegular = fs.readFileSync(fontPath).toString("base64");
+  const fontBold = fs.readFileSync(fontBoldPath).toString("base64");
 
-  // Draw the number (right-aligned to colon position)
-  const valueMetrics = ctx.measureText(value);
-  ctx.fillText(value, colonX - valueMetrics.width - 20, y);
+  const colonX = 640;
 
-  // Draw colon
-  ctx.fillText(":", colonX, y);
+  const row = (value: string, label: string, y: number) => `
+    <text x="${colonX - 25}" y="${y}" text-anchor="end"
+      font-size="60"
+      fill="${GOLD_BROWN}"
+      font-family="Merriweather">${escapeXml(value)}</text>
 
-  // Draw label (left-aligned from colon)
-  ctx.fillText(label, colonX + 30, y);
+    <text x="${colonX}" y="${y}"
+      font-size="60"
+      fill="${GOLD_BROWN}"
+      font-family="Merriweather">:</text>
+
+    <text x="${colonX + 30}" y="${y}"
+      font-size="60"
+      fill="${GOLD_BROWN}"
+      font-family="Merriweather">${escapeXml(label)}</text>
+  `;
+
+  return `
+  <svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style>
+        @font-face {
+          font-family: 'Merriweather';
+          src: url(data:font/ttf;base64,${fontRegular}) format('truetype');
+          font-weight: 400;
+        }
+
+        @font-face {
+          font-family: 'Merriweather';
+          src: url(data:font/ttf;base64,${fontBold}) format('truetype');
+          font-weight: 700;
+        }
+      </style>
+    </defs>
+
+    <!-- Date -->
+    <text x="50%" y="280"
+      text-anchor="middle"
+      font-size="44"
+      fill="${BROWN}"
+      font-family="Merriweather">
+      ${escapeXml(`As on ${rates.date} - Time ${rates.time} Hrs`)}
+    </text>
+
+    <!-- Gold Heading -->
+    <text x="50%" y="500"
+      text-anchor="middle"
+      font-size="72"
+      font-weight="700"
+      fill="${GOLD_BROWN}"
+      font-family="Merriweather">
+      Gold Rate
+    </text>
+
+    ${row(rates.goldStandard, "Standard (99.5)", 585)}
+    ${row(rates.gold22k, "22K (916)", 670)}
+    ${row(rates.gold18k, "18K (750)", 755)}
+    ${row(rates.gold14k, "14K (583)", 840)}
+
+    <!-- Silver Heading -->
+    <text x="50%" y="1000"
+      text-anchor="middle"
+      font-size="72"
+      font-weight="700"
+      fill="${GOLD_BROWN}"
+      font-family="Merriweather">
+      Silver Rate
+    </text>
+
+    <text x="50%" y="1085"
+      text-anchor="middle"
+      font-size="64"
+      fill="${GOLD_BROWN}"
+      font-family="Merriweather">
+      ${escapeXml(rates.silverPure)}
+    </text>
+
+    <!-- Disclaimer -->
+    <text x="50%" y="1400"
+      text-anchor="middle"
+      font-size="46"
+      fill="${BROWN}"
+      font-family="Merriweather">
+      Making Charges &amp; GST Extra
+    </text>
+  </svg>
+  `;
 }
 
 export async function generatePoster(rates: ParsedRates): Promise<Buffer> {
-  registerFonts();
-
-  const canvas = createCanvas(WIDTH, HEIGHT);
-  const ctx = canvas.getContext("2d");
-
-  // 1. Load and draw template image (background + logo)
   const templatePath = path.join(process.cwd(), "assets", "template.png");
-  const template = await loadImage(templatePath);
-  ctx.drawImage(template, 0, 0, WIDTH, HEIGHT);
 
-  // Set colon alignment position (center of canvas)
-  const colonX = WIDTH / 2.12;
+  const svg = buildSvg(rates);
 
-  // 2. Date & Time at top
-  drawCenteredText(
-    ctx,
-    `As on ${rates.date} - Time ${rates.time}Hrs`,
-    280,
-    "44px Merriweather",
-    BROWN,
-  );
+  const output = await sharp(templatePath)
+    .resize(WIDTH, HEIGHT)
+    .composite([
+      {
+        input: Buffer.from(svg),
+        top: 0,
+        left: 0,
+      },
+    ])
+    .png()
+    .toBuffer();
 
-  // 3. Gold Rate heading (bold)
-  drawCenteredText(ctx, "Gold Rate", 500, "bold 72px Merriweather", GOLD_BROWN);
-
-  // 4. Gold rates - aligned by colon
-  const rateFont = "60px Merriweather";
-
-  drawRateRow(
-    ctx,
-    rates.goldStandard,
-    "Standard (99.5)",
-    585,
-    rateFont,
-    GOLD_BROWN,
-    colonX,
-  );
-  drawRateRow(
-    ctx,
-    rates.gold22k,
-    "22K (916)",
-    670,
-    rateFont,
-    GOLD_BROWN,
-    colonX,
-  );
-  drawRateRow(
-    ctx,
-    rates.gold18k,
-    "18K (750)",
-    755,
-    rateFont,
-    GOLD_BROWN,
-    colonX,
-  );
-  drawRateRow(
-    ctx,
-    rates.gold14k,
-    "14K (583)",
-    840,
-    rateFont,
-    GOLD_BROWN,
-    colonX,
-  );
-
-  // 5. Silver Rate heading (bold)
-  drawCenteredText(
-    ctx,
-    "Silver Rate",
-    1000,
-    "bold 72px Merriweather",
-    GOLD_BROWN,
-  );
-
-  // 6. Silver rate (just the number, centered)
-  drawCenteredText(
-    ctx,
-    rates.silverPure,
-    1085,
-    "64px Merriweather",
-    GOLD_BROWN,
-  );
-
-  // 7. Disclaimer text
-  drawCenteredText(
-    ctx,
-    "Making Charges & GST Extra",
-    1400,
-    "46px Merriweather",
-    BROWN,
-  );
-
-  // Note: SATHE logo is already in the template, so we don't draw it
-
-  // Return PNG buffer
-  return canvas.toBuffer("image/png");
+  return output;
 }
