@@ -5,3 +5,4 @@ dist/
 .vercel/
 *.png
 !assets/*.png
+.vercel
