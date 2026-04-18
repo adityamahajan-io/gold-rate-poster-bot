@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:grammy.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:core.telegram.org)",
+      "WebFetch(domain:www.google.com)",
+      "WebFetch(domain:deno.land)",
+      "WebFetch(domain:fonts.google.com)",
+      "Bash(git init *)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/playfairdisplay/PlayfairDisplay-Bold.ttf\" -o fonts/PlayfairDisplay-Bold.ttf)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/playfairdisplay/PlayfairDisplay-Regular.ttf\" -o fonts/PlayfairDisplay-Regular.ttf)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-SemiBold.ttf\" -o fonts/Poppins-SemiBold.ttf)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Medium.ttf\" -o fonts/Poppins-Medium.ttf)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Regular.ttf\" -o fonts/Poppins-Regular.ttf)",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/cormorant/Cormorant-Medium.ttf\" -o fonts/Cormorant-Medium.ttf)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/cormorant/Cormorant-SemiBold.ttf\" -o fonts/Cormorant-SemiBold.ttf)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/merriweather/Merriweather-Regular.ttf\" -o fonts/Merriweather-Regular.ttf)",
+      "Bash(curl -L \"https://github.com/google/fonts/raw/main/ofl/merriweather/Merriweather-Bold.ttf\" -o fonts/Merriweather-Bold.ttf)",
+      "Bash(npx tsx *)",
+      "Bash(rm fonts/Merriweather-*.ttf fonts/Cormorant-*.ttf)",
+      "Bash(curl -L \"https://github.com/sorkintype/Merriweather/raw/master/fonts/ttf/Merriweather-Regular.ttf\" -o fonts/Merriweather-Regular.ttf)",
+      "Bash(curl -L \"https://github.com/sorkintype/Merriweather/raw/master/fonts/ttf/Merriweather-Bold.ttf\" -o fonts/Merriweather-Bold.ttf)",
+      "Bash(git config *)",
+      "Bash(git rebase *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Read(//Users/aditya.mahajan/Data/Code/**)",
+      "Bash(zip -r gold-rate-poster-bot.zip image-generation-bot -x \"*/node_modules/*\" \"*/.git/*\" \"*/dist/*\" \"*/.vercel/*\" \"*/test-output.png\" \"*/font-test-output.png\")"
+    ]
+  }
+}

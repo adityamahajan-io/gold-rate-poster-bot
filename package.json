@@ -1,0 +1,24 @@
+{
+  "name": "image-generation-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "set-webhook": "npx tsx scripts/set-webhook.ts",
+    "test-local": "npx tsx scripts/test-local.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.99",
+    "grammy": "^1.35.0"
+  },
+  "devDependencies": {
+    "@vercel/node": "^5.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
