@@ -57,12 +57,12 @@ function textPath(
 }
 
 function buildSvg(rates: ParsedRates) {
-  const colonX = 640;
+  const colonX = 660;
 
   const row = (value: string, label: string, y: number) => `
     ${textPath(value, colonX - 25, y, 60, GOLD_BROWN, "right")}
     ${textPath(":", colonX, y, 60, GOLD_BROWN)}
-    ${textPath(label, colonX + 30, y, 60, GOLD_BROWN)}
+    ${textPath(label, colonX + 35, y + 10, 48, GOLD_BROWN)}
   `;
 
   return `
@@ -77,16 +77,32 @@ function buildSvg(rates: ParsedRates) {
       "center"
     )}
 
-    ${textPath("Gold Rate", WIDTH / 2, 500, 72, GOLD_BROWN, "center", true)}
+    ${textPath(
+      "Gold Rate - 10gm",
+      WIDTH / 2,
+      475,
+      72,
+      GOLD_BROWN,
+      "center",
+      true
+    )}
 
-    ${row(rates.goldStandard, "Standard (99.5)", 585)}
-    ${row(rates.gold22k, "22K (916)", 670)}
-    ${row(rates.gold18k, "18K (750)", 755)}
-    ${row(rates.gold14k, "14K (583)", 840)}
+    ${row(rates.goldStandard, "Standard 995", 585)}
+    ${row(rates.gold22k, "22K", 670)}
+    ${row(rates.gold18k, "18K", 755)}
+    ${row(rates.gold14k, "14K", 840)}
 
-    ${textPath("Silver Rate", WIDTH / 2, 1000, 72, GOLD_BROWN, "center", true)}
+    ${textPath(
+      "Silver Rate - 1kg",
+      WIDTH / 2,
+      1100,
+      72,
+      GOLD_BROWN,
+      "center",
+      true
+    )}
 
-    ${textPath(rates.silverPure, WIDTH / 2, 1085, 64, GOLD_BROWN, "center")}
+    ${textPath(rates.silverPure, WIDTH / 2, 1185, 64, GOLD_BROWN, "center")}
 
     ${textPath(
       "Making Charges & GST Extra",
@@ -94,6 +110,15 @@ function buildSvg(rates: ParsedRates) {
       1400,
       46,
       BROWN,
+      "center"
+    )}
+
+    ${textPath(
+      "Rates are subject to change at any time due to market fluctuations",
+      WIDTH / 2,
+      1850,
+      24,
+      GOLD_BROWN,
       "center"
     )}
 
